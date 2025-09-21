@@ -1,0 +1,39 @@
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.prose {
+    max-width: none;
+}
+.prose h3 {
+    @apply text-lg font-semibold text-red-300 mb-2 mt-4;
+}
+.prose ul {
+    @apply list-disc pl-5 space-y-2 text-gray-300;
+}
+.prose li::marker {
+    @apply text-blue-400;
+}
+.prose p {
+    @apply text-gray-300;
+}
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: #4f46e5;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

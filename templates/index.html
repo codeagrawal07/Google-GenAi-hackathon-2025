@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Document Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gray-900 text-gray-200">
+    <div id="app" class="flex flex-col md:flex-row min-h-screen">
+
+        <!-- Left Panel: Controls -->
+        <div class="w-full md:w-1/2 lg:w-2/5 p-6 md:p-8 bg-gray-800 flex flex-col border-r border-gray-700">
+            <header class="flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-8 h-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.5h-8.01a1.5 1.5 0 01-1.465-1.985l3.597-9.352A1.5 1.5 0 017.995 5.25h8.01a1.5 1.5 0 011.465 1.985l-3.597 9.352a1.5 1.5 0 01-1.465 1.163z" />
+                    </svg>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-white">AI Document Analyzer</h1>
+                </div>
+                <p class="text-gray-400 mt-2">Get an instant analysis of your legal documents. Paste your text, choose your role, and let our AI provide insights.</p>
+            </header>
+
+            <main class="mt-8 flex-grow flex flex-col">
+                <div class="flex-grow flex flex-col">
+                    <label class="text-sm font-medium text-gray-300 mb-2">1. Provide your document</label>
+                    <div class="mt-2 p-1 bg-gray-700 rounded-lg flex space-x-1">
+                        <button id="pasteTab" class="flex-1 text-sm font-medium py-2 rounded-md transition-colors duration-200">Paste Text</button>
+                        <button id="uploadTab" class="flex-1 text-sm font-medium py-2 rounded-md transition-colors duration-200">Upload File</button>
+                    </div>
+
+                    <div id="pasteContainer" class="mt-2 flex-grow flex flex-col">
+                         <textarea id="documentText" class="w-full flex-grow bg-gray-900 border border-gray-600 rounded-lg p-4 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 resize-none" placeholder="Paste your employment contract or legal document here..."></textarea>
+                    </div>
+                    
+                    <div id="uploadContainer" class="hidden mt-4 flex-grow flex flex-col items-center justify-center bg-gray-900 border-2 border-dashed border-gray-600 rounded-lg p-4">
+                        <input type="file" id="fileUpload" class="hidden" accept=".txt,.md,.pdf,.doc,.docx">
+                        <label for="fileUpload" class="cursor-pointer flex flex-col items-center">
+                            <svg class="w-10 h-10 text-gray-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 21H5.25A2.25 2.25 0 013 17.25z" /></svg>
+                            <span class="font-medium text-indigo-400">Click to upload</span>
+                            <span class="text-xs text-gray-500 mt-1">TXT, MD, PDF, DOC, DOCX</span>
+                        </label>
+                        <p id="fileName" class="mt-2 text-sm text-gray-400"></p>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-sm font-medium text-gray-300 mb-3">2. Analyze as...</h3>
+                    <fieldset>
+                        <legend class="sr-only">Analysis Role</legend>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <input type="radio" name="role" id="role-employee" value="Employee" class="sr-only" checked>
+                                <label for="role-employee" class="flex flex-col items-center justify-center text-center p-4 border border-gray-600 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-700 radio-label">
+                                    <svg class="w-8 h-8 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                                    <span class="font-medium">Employee</span>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" name="role" id="role-company" value="Company" class="sr-only">
+                                <label for="role-company" class="flex flex-col items-center justify-center text-center p-4 border border-gray-600 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-700 radio-label">
+                                    <svg class="w-8 h-8 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375M9 12h6.375m-6.375 5.25h6.375M5.25 6h.008v.008H5.25V6zm.75 5.25h.008v.008H6v-5.25zm-.75 5.25h.008v.008H5.25v-5.25z" /></svg>
+                                    <span class="font-medium">Company</span>
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="mt-8 flex-shrink-0 flex items-center space-x-4">
+                    <button id="analyzeBtn" class="flex-1 inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 transition-all duration-200">
+                        Analyze Document
+                    </button>
+                    <button id="clearBtn" class="px-4 py-3 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-all duration-200">Clear</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Right Panel: Analysis Output -->
+        <div class="w-full md:w-1/2 lg:w-3/5 p-6 md:p-8 flex-grow overflow-y-auto">
+            <div id="outputContainer" class="h-full">
+                <!-- Initial State -->
+                <div id="initialState" class="h-full flex flex-col items-center justify-center text-center text-gray-400">
+                    <svg class="w-16 h-16 mb-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    <h2 class="text-xl font-semibold text-white">Your analysis will appear here</h2>
+                    <p class="mt-2 max-w-sm">Paste your document, select your role, and click "Analyze" to begin.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="hidden h-full flex flex-col items-center justify-center">
+                    <div class="loader"></div>
+                    <p class="mt-4 text-lg text-gray-300">Analyzing your document...</p>
+                    <p class="text-gray-500">This may take a moment.</p>
+                </div>
+
+                <!-- Result State -->
+        b<div id="resultState" class="hidden">
+            <div id="summaryContainer" class="mb-8">
+                </div>
+
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-700">
+                <div class="flex items-center space-x-3">
+                    <h2 class="text-2xl font-bold text-white">AI Insights</h2>
+                    <span id="insightsCount" class="bg-indigo-600 text-white text-sm font-bold px-2.5 py-0.5 rounded-full"></span>
+                </div>
+                <button id="copyBtn" class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a2.25 2.25 0 01-2.25 2.25h-1.5a2.25 2.25 0 01-2.25-2.25V4.5A2.25 2.25 0 019 2.25h3A2.25 2.25 0 0113.5 4.5v0c0 .212.03.418.084.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V7.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+                    Copy
+                </button>
+            </div>
+
+         <div id="insightsContainer" class="space-y-6">
+        </div>
+    </div>
+
+                <!-- Error State -->
+                <div id="errorState" class="hidden h-full flex flex-col items-center justify-center text-center text-red-400">
+                    <svg class="w-16 h-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" /></svg>
+                    <h2 class="text-xl font-semibold text-white">An Error Occurred</h2>
+                    <p id="errorMessage" class="mt-2 max-w-sm"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
